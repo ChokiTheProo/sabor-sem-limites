@@ -284,6 +284,24 @@ footer .disc{max-width:760px;margin:14px auto 0;font-size:.74rem;color:#8C7C6E;l
 .hero-visual{display:flex;justify-content:center;align-items:center;padding:0;background:none}
 .hero-capa{width:100%;max-width:340px;height:auto;border-radius:16px;display:block;
   box-shadow:0 24px 55px rgba(120,50,10,.30)}
+.vsl-wrap{position:relative;width:100%;max-width:330px;margin:0 auto;border-radius:18px;
+  overflow:hidden;box-shadow:0 24px 55px rgba(120,50,10,.30);background:#000;line-height:0}
+.vsl{width:100%;height:auto;display:block}
+.vsl-overlay{position:absolute;inset:0;z-index:3;cursor:pointer;display:flex;align-items:center;
+  justify-content:center;text-align:center;color:#fff;line-height:1.3;
+  background:rgba(0,0,0,.42);transition:opacity .35s ease}
+.vsl-overlay.hide{opacity:0;pointer-events:none}
+.vsl-play{width:66px;height:66px;border-radius:50%;background:rgba(255,255,255,.96);color:var(--laranja-esc);
+  display:flex;align-items:center;justify-content:center;font-size:1.7rem;margin:0 auto 14px;padding-left:5px;
+  box-shadow:0 8px 24px rgba(0,0,0,.4);animation:vslpulse 1.7s infinite}
+@keyframes vslpulse{0%,100%{transform:scale(1)}50%{transform:scale(1.09)}}
+.vsl-msg{font-family:'Poppins';font-weight:800;font-size:1.05rem;text-shadow:0 2px 8px rgba(0,0,0,.5)}
+.vsl-sub{font-family:'Poppins';font-weight:700;font-size:.82rem;margin-top:12px;
+  background:var(--grad);display:inline-block;padding:9px 18px;border-radius:999px;box-shadow:var(--sombra)}
+.vsl-playicon{position:absolute;inset:0;z-index:2;display:none;align-items:center;justify-content:center;
+  pointer-events:none;color:rgba(255,255,255,.95);font-size:3rem;padding-left:6px;
+  text-shadow:0 4px 18px rgba(0,0,0,.75)}
+.vsl-wrap.paused .vsl-playicon{display:flex}
 
 /* ===== Garantia estilo referência (card verde + escudo) ===== */
 .guarantee-v{max-width:700px;margin:0 auto;background:rgba(31,168,90,.08);
@@ -392,7 +410,19 @@ footer .disc{max-width:760px;margin:14px auto 0;font-size:.74rem;color:#8C7C6E;l
       <span class="eyebrow">Sem glúten • Sem lactose • Baixa fenilalanina</span>
       <h1>Cozinhe <span class="hl2">sem glúten, lactose</span> e baixa fenilalanina — sem abrir mão do sabor</h1>
       <div class="hero-visual">
-        <img class="hero-capa" src="./img/hero-capa.webp" width="680" height="1020" fetchpriority="high" decoding="async" alt="eBook Sabores Sem Limites – Receitas PKU: mais de 50 receitas com baixo teor de fenilalanina">
+        <div class="vsl-wrap">
+          <video class="vsl" id="vslVideo" autoplay muted loop playsinline preload="auto" poster="./img/hero-capa.webp" onclick="rfpTogglePlay()">
+            <source src="./img/vsl.mp4" type="video/mp4">
+          </video>
+          <div class="vsl-playicon" id="vslPlayIcon" aria-hidden="true">▶</div>
+          <div class="vsl-overlay" id="vslOverlay" role="button" tabindex="0" onclick="rfpStartSound()" aria-label="Clique para ativar o som">
+            <div class="vsl-overlay-inner">
+              <div class="vsl-play">▶</div>
+              <div class="vsl-msg">Seu vídeo já começou</div>
+              <div class="vsl-sub">🔊 Clique aqui para ativar o som</div>
+            </div>
+          </div>
+        </div>
       </div>
       <p class="lead">Mais de 50 receitas doces e salgadas — <b>todas sem glúten, sem lactose e de baixa fenilalanina</b>. Perfeitas para variar o cardápio em casa ou <b>montar um restaurante diversificado</b>, com passo a passo simples e ingredientes acessíveis.</p>
       <a href="#oferta" class="btn btn-wide">QUERO COMPRAR AGORA</a>
@@ -649,6 +679,23 @@ footer .disc{max-width:760px;margin:14px auto 0;font-size:.74rem;color:#8C7C6E;l
 </footer>
 
 <script>
+// VSL — camada de entrada: clicar liga o som e reinicia do começo
+function rfpStartSound(){
+  var v=document.getElementById('vslVideo'), o=document.getElementById('vslOverlay'), w=v&&v.closest('.vsl-wrap');
+  if(!v)return;
+  v.muted=false; v.volume=1; v.currentTime=0;
+  var p=v.play(); if(p&&p.catch)p.catch(function(){});
+  if(w)w.classList.remove('paused');
+  if(o)o.classList.add('hide');
+}
+// VSL — clicar no vídeo (depois de iniciado) pausa/retoma
+function rfpTogglePlay(){
+  var v=document.getElementById('vslVideo'), w=v&&v.closest('.vsl-wrap');
+  if(!v)return;
+  if(v.paused){var p=v.play();if(p&&p.catch)p.catch(function(){});if(w)w.classList.remove('paused');}
+  else{v.pause();if(w)w.classList.add('paused');}
+}
+
 // Carrossel de imagens (setas) — com loop infinito
 function rfpSlide(dir){
   var t=document.getElementById('rfpTrack');if(!t)return;
